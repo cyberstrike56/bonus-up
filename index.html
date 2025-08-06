@@ -50,11 +50,6 @@
 </head>
 <body class="bg-gray-100 font-sans">
     <div class="container mx-auto p-4 max-w-md">
-        <!-- Изображение над навигацией -->
-        <div class="text-center mb-4">
-            <img src="https://ltdfoto.ru/image/vSJEcs" alt="Logo" class="mx-auto max-w-full h-auto">
-        </div>
-
         <!-- Навигация -->
         <div class="text-center mb-4">
             <div class="flex justify-around">
@@ -454,3 +449,169 @@
         }
 
         // Переключение сканера
+        function toggleScanner() {
+            const scanner = document.getElementById('qrScanner');
+            const isHidden = scanner.classList.contains('hidden');
+            scanner.classList.toggle('hidden', !isHidden);
+            if (isHidden) {
+                startScanner();
+            } else {
+                stopScanner();
+                document.getElementById('scanResult').textContent = '';
+            }
+        }
+
+        // Инициализация сканера
+        let html5QrcodeScanner = null;
+        function startScanner() {
+            const scanResult = document.getElementById('scanResult');
+            const scanAction = document.getElementById('scanAction').value;
+            const adminPhone = document.getElementById('adminPhone').textContent;
+            scanResult.textContent = 'Наведите камеру на QR-код...';
+            html5QrcodeScanner = new Html5Qrcode('qrScanner');
+            html5QrcodeScanner.start(
+                { facingMode: 'environment' },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                (decodedText) => {
+                    const isAdd = scanAction === 'add';
+                    const user = updateUserPoints(decodedText, 10, isAdd);
+                    if (user) {
+                        updateAdminStats(adminPhone, isAdd ? 10 : 0, isAdd ? 0 : 10);
+                        document.getElementById('adminPointsAdded').textContent = (parseInt(document.getElementById('adminPointsAdded').textContent) || 0) + (isAdd ? 10 : 0);
+                        document.getElementById('adminPointsDeducted').textContent = (parseInt(document.getElementById('adminPointsDeducted').textContent) || 0) + (isAdd ? 0 : 10);
+                        scanResult.textContent = `Сканування завершено. ${isAdd ? 'Начислено' : 'Списано'} 10 бонусів.`;
+                    } else {
+                        scanResult.textContent = 'Ошибка: недостаточно бонусов для списания.';
+                    }
+                    stopScanner();
+                },
+                (error) => {
+                    scanResult.textContent = 'Ошибка сканирования: ' + error;
+                }
+            ).catch((err) => {
+                scanResult.textContent = 'Ошибка инициализации сканера: ' + err;
+            });
+        }
+
+        // Остановка сканера
+        function stopScanner() {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.stop().then(() => {
+                    html5QrcodeScanner.clear();
+                    html5QrcodeScanner = null;
+                }).catch((err) => {
+                    console.error('Ошибка остановки сканера:', err);
+                });
+            }
+        }
+
+        // Обнуление продаж в воскресенье в 00:00 (по ORE)
+        function checkResetSales() {
+            const now = new Date();
+            const offset = 5; // UTC+5 для Оренбурга
+            const localTime = new Date(now.getTime() + (offset * 60 * 60 * 1000));
+            const day = localTime.getUTCDay();
+            const hour = localTime.getUTCHours();
+            if (day === 0 && hour === 0) { // Воскресенье, 00:00
+                localStorage.removeItem('salesData');
+                localStorage.removeItem('shiftData');
+            }
+        }
+
+        // Показать форму продаж
+        function showSales(type) {
+            const salesForm = document.getElementById('salesForm');
+            const salesTitle = document.getElementById('salesTitle');
+            const salesInputs = document.getElementById('salesInputs');
+            const salesSummary = document.getElementById('salesSummary');
+            salesInputs.innerHTML = '';
+            let items = [];
+
+            if (type === 'tir') {
+                salesTitle.textContent = 'Статистика Тира';
+                items = [
+                    { name: 'Акция дуэль', key: 'tir_duel' },
+                    { name: 'Акция 1200', key: 'tir_1200' },
+                    { name: 'Акция 3000', key: 'tir_3000' },
+                    { name: 'Сертификат 999+1', key: 'tir_cert' }
+                ];
+            } else if (type === 'arcade') {
+                salesTitle.textContent = 'Статистика Аркады';
+                items = [
+                    { name: 'Акция 2000', key: 'arcade_2000' },
+                    { name: 'Акция 1200', key: 'arcade_1200' },
+                    { name: 'Сертификат 999+1', key: 'arcade_cert' }
+                ];
+            } else if (type === 'viar') {
+                salesTitle.textContent = 'Статистика ВИАР';
+                items = [
+                    { name: 'Акция 1800', key: 'viar_1800' },
+                    { name: 'Сертификат 999+1', key: 'viar_cert' }
+                ];
+            }
+
+            const salesData = JSON.parse(localStorage.getItem('salesData')) || {};
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'mb-2';
+                const value = salesData[item.key] || { today: 0, week: 0 };
+                div.innerHTML = `
+                    <label class="block">${item.name}</label>
+                    <input type="number" id="${item.key}_today" value="${value.today}" class="w-full p-2 border rounded-lg mb-1" placeholder="Сегодня">
+                    <input type="number" id="${item.key}_week" value="${value.week}" class="w-full p-2 border rounded-lg mb-1" placeholder="Неделя">
+                `;
+                salesInputs.appendChild(div);
+            });
+
+            salesSummary.textContent = '';
+            salesForm.classList.remove('hidden');
+        }
+
+        // Сохранение продаж
+        function saveSales() {
+            const salesData = JSON.parse(localStorage.getItem('salesData')) || {};
+            const inputs = document.getElementById('salesInputs').getElementsByTagName('input');
+            for (let input of inputs) {
+                const [key, period] = input.id.split('_');
+                if (!salesData[key]) salesData[key] = { today: 0, week: 0 };
+                salesData[key][period] = parseInt(input.value) || 0;
+            }
+            localStorage.setItem('salesData', JSON.stringify(salesData));
+            const salesSummary = document.getElementById('salesSummary');
+            salesSummary.textContent = 'Данные сохранены!';
+            setTimeout(() => {
+                salesSummary.textContent = '';
+                document.getElementById('salesForm').classList.add('hidden');
+            }, 2000);
+        }
+
+        // Показать информацию о смене
+        function showShiftInfo() {
+            const shiftInfo = document.getElementById('shiftInfo');
+            const shiftEmployees = document.getElementById('shiftEmployees');
+            shiftEmployees.innerHTML = '';
+            const shiftData = JSON.parse(localStorage.getItem('shiftData')) || [];
+            if (shiftData.length === 0) {
+                shiftEmployees.innerHTML = '<p class="text-center">Нет данных о сотрудниках.</p>';
+            } else {
+                shiftData.forEach(emp => {
+                    const div = document.createElement('div');
+                    div.className = 'mb-2';
+                    div.innerHTML = `<p><strong>${emp.name}</strong> - Продано сертификатов: ${emp.certificates}</p>`;
+                    shiftEmployees.appendChild(div);
+                });
+            }
+            shiftInfo.classList.remove('hidden');
+        }
+
+        // Добавить сотрудника
+        function addEmployee() {
+            const name = prompt('Введите имя сотрудника:');
+            if (name) {
+                const certificates = parseInt(prompt('Введите количество проданных сертификатов:') || 0);
+                const shiftData = JSON.parse(localStorage.getItem('shiftData')) || [];
+                shiftData.push({ name, certificates });
+                localStorage.setItem('shiftData', JSON.stringify(shiftData));
+                showShiftInfo();
+            }
+        }
