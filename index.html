@@ -40,6 +40,7 @@
         </script><!DOCTYPE html>
 <html lang="ru">
 <head>
+    <link rel="manifest" href="/manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Бонусная программа</title>
@@ -479,6 +480,61 @@
             initializeAdmins();
             showClientInterface();
         });
+        if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js')
+    .then(() => console.log('Service Worker зарегистрирован'))
+    .catch((error) => console.error('Ошибка регистрации Service Worker:', error));
+}
+// Проверка первого посещения и предложение установки
+document.addEventListener('DOMContentLoaded', () => {
+  initializeAdmins();
+  showClientInterface();
+
+  if (localStorage.getItem('visited') !== 'true') {
+    if ('BeforeInstallPromptEvent' in window) {
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault(); // Предотвращаем автоматическое появление
+        const installPrompt = e;
+
+        const installMessage = document.createElement('div');
+        installMessage.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        installMessage.innerHTML = `
+          <div class="bg-white p-4 rounded-lg shadow-lg text-center">
+            <h2 class="text-xl font-bold mb-2">Добавить на главный экран?</h2>
+            <p class="mb-4">Для удобства добавьте сайт на домашний экран!</p>
+            <button onclick="installApp()" class="bg-blue-500 text-white p-2 rounded-lg mr-2 hover:bg-blue-600">Добавить</button>
+            <button onclick="closeInstallMessage()" class="bg-gray-500 text-white p-2 rounded-lg hover:bg-gray-600">Отмена</button>
+          </div>
+        `;
+        document.body.appendChild(installMessage);
+
+        window.installPrompt = installPrompt;
+      });
+    }
+    localStorage.setItem('visited', 'true');
+  }
+});
+
+// Функции для установки и закрытия
+function installApp() {
+  if (window.installPrompt) {
+    window.installPrompt.prompt();
+    window.installPrompt.userChoice.then((choice) => {
+      if (choice.outcome === 'accepted') {
+        console.log('Пользователь согласился установить');
+      } else {
+        console.log('Пользователь отказался');
+      }
+      window.installPrompt = null;
+    });
+  }
+  closeInstallMessage();
+}
+
+function closeInstallMessage() {
+  const installMessage = document.querySelector('.fixed');
+  if (installMessage) installMessage.remove();
+}
     </script>
 </body>
 </html>
