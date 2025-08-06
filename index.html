@@ -40,16 +40,21 @@
         </script><!DOCTYPE html>
 <html lang="ru">
 <head>
-    <link rel="manifest" href="/manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Бонусная программа</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <link rel="manifest" href="/manifest.json">
 </head>
 <body class="bg-gray-100 font-sans">
     <div class="container mx-auto p-4 max-w-md">
+        <!-- Изображение над навигацией -->
+        <div class="text-center mb-4">
+            <img src="https://ltdfoto.ru/image/vSJEcs" alt="Logo" class="mx-auto max-w-full h-auto">
+        </div>
+
         <!-- Навигация -->
         <div class="text-center mb-4">
             <div class="flex justify-around">
@@ -62,11 +67,7 @@
         <div id="clientInterface" class="hidden">
             <h1 class="text-2xl font-bold text-center mb-4">Клиентская программа</h1>
             <div id="loginForm" class="mb-4">
-                <select id="inputType" class="w-full p-2 border rounded-lg mb-2 focus:outline-none">
-                    <option value="email">Email</option>
-                    <option value="phone">Номер телефона</option>
-                </select>
-                <input id="userInput" type="text" placeholder="Введите email или номер телефона" class="w-full p-2 border rounded-lg mb-2 focus:outline-none">
+                <input id="userInput" type="text" placeholder="Введите номер телефона (например, +71234567890 или 81234567890)" class="w-full p-2 border rounded-lg mb-2 focus:outline-none">
                 <input id="firstNameInput" type="text" placeholder="Введите имя" class="w-full p-2 border rounded-lg mb-2 focus:outline-none hidden" data-registration-only>
                 <input id="lastNameInput" type="text" placeholder="Введите фамилию" class="w-full p-2 border rounded-lg mb-2 focus:outline-none hidden" data-registration-only>
                 <input id="birthDateInput" type="date" placeholder="Дата рождения" class="w-full p-2 border rounded-lg mb-2 focus:outline-none hidden" data-registration-only>
@@ -77,8 +78,9 @@
                 <p id="welcomeMessage" class="text-center mb-2"></p>
                 <p><strong>Имя:</strong> <span id="displayFirstName"></span></p>
                 <p><strong>Фамилия:</strong> <span id="displayLastName"></span></p>
-                <p><strong>Идентификатор:</strong> <span id="displayIdentifier"></span> (<span id="displayType"></span>)</p>
+                <p><strong>Идентификатор:</strong> <span id="displayIdentifier"></span> (<span id="displayType">Телефон</span>)</p>
                 <p><strong>Бонусы:</strong> <span id="displayPoints"></span></p>
+                <button onclick="openReview()" class="w-full bg-yellow-500 text-white p-2 rounded-lg mt-4 hover:bg-yellow-600">Оставить отзыв</button>
             </div>
             <div id="qrCodeContainer" class="flex justify-center mt-4"></div>
             <p id="qrMessage" class="text-center mt-2"></p>
@@ -88,32 +90,47 @@
         <div id="adminLogin" class="hidden">
             <h1 class="text-2xl font-bold text-center mb-4">Вход для администратора</h1>
             <div class="mb-4">
-                <input id="adminPhoneInput" type="text" placeholder="Введите номер телефона" class="w-full p-2 border rounded-lg mb-2 focus:outline-none">
+                <input id="adminPhoneInput" type="text" placeholder="Введите номер телефона (например, +71234567890 или 81234567890)" class="w-full p-2 border rounded-lg mb-2 focus:outline-none">
                 <button onclick="adminLogin()" class="w-full bg-green-500 text-white p-2 rounded-lg mt-2 hover:bg-green-600">Войти</button>
             </div>
             <p id="adminLoginMessage" class="text-center mt-2"></p>
         </div>
 
-        <!-- Админский интерфейс: Сканер -->
+        <!-- Админский интерфейс: Сканер и статистика -->
         <div id="adminScanner" class="hidden">
-            <h1 class="text-2xl font-bold text-center mb-4">Сканер QR-кода</h1>
+            <h1 class="text-2xl font-bold text-center mb-4">Сканер QR-кода и статистика</h1>
             <div class="mb-4 p-4 bg-white rounded-lg shadow">
                 <p id="adminWelcomeMessage" class="text-center mb-2"></p>
                 <p><strong>Администратор:</strong> <span id="adminPhone"></span></p>
                 <p><strong>Начислено бонусов:</strong> <span id="adminPointsAdded">0</span></p>
                 <p><strong>Списано бонусов:</strong> <span id="adminPointsDeducted">0</span></p>
             </div>
-            <div class="flex justify-around mb-4">
-                <select id="scanAction" class="w-full p-2 border rounded-lg focus:outline-none">
+            <div class="flex justify-around mb-4 flex-wrap">
+                <select id="scanAction" class="w-full p-2 border rounded-lg focus:outline-none mb-2">
                     <option value="add">Начислить бонусы</option>
                     <option value="deduct">Списать бонусы</option>
                 </select>
-                <button onclick="showClientList()" class="bg-yellow-500 text-white p-2 rounded-lg hover:bg-yellow-600">Показать базу клиентов</button>
-                <a href="https://wa.me/1234567890" target="_blank" class="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 text-center w-full">WhatsApp</a>
+                <button onclick="showClientList()" class="bg-yellow-500 text-white p-2 rounded-lg hover:bg-yellow-600 w-full mx-1 mb-2">Показать базу клиентов</button>
+                <a href="https://wa.me/1234567890" target="_blank" class="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 text-center w-full mx-1 mb-2">WhatsApp</a>
+                <button onclick="toggleScanner()" class="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 w-full mx-1 mb-2">Открыть/Закрыть сканер</button>
+                <button onclick="showSales('tir')" class="bg-purple-500 text-white p-2 rounded-lg hover:bg-purple-600 w-full mx-1 mb-2">Тир</button>
+                <button onclick="showSales('arcade')" class="bg-purple-500 text-white p-2 rounded-lg hover:bg-purple-600 w-full mx-1 mb-2">Аркада</button>
+                <button onclick="showSales('viar')" class="bg-purple-500 text-white p-2 rounded-lg hover:bg-purple-600 w-full mx-1 mb-2">ВИАР</button>
+                <button id="shiftButton" onclick="showShiftInfo()" class="bg-orange-500 text-white p-2 rounded-lg hover:bg-orange-600 w-full mx-1 mb-2 hidden">Смена</button>
             </div>
-            <div id="qrScanner" class="w-full h-64 bg-gray-200 rounded-lg"></div>
+            <div id="qrScanner" class="w-full h-64 bg-gray-200 rounded-lg hidden"></div>
             <p id="scanResult" class="text-center mt-4"></p>
-            <button onclick="startScanner()" class="w-full bg-green-500 text-white p-2 rounded-lg mt-2 hover:bg-green-600">Начать сканирование</button>
+            <div id="salesForm" class="hidden mt-4 p-4 bg-white rounded-lg shadow">
+                <h2 id="salesTitle" class="text-xl font-bold mb-2"></h2>
+                <div id="salesInputs"></div>
+                <button onclick="saveSales()" class="bg-green-500 text-white p-2 rounded-lg mt-2 hover:bg-green-600">Сохранить</button>
+                <p id="salesSummary" class="mt-2"></p>
+            </div>
+            <div id="shiftInfo" class="hidden mt-4 p-4 bg-white rounded-lg shadow">
+                <h2 class="text-xl font-bold mb-2">Информация о смене</h2>
+                <div id="shiftEmployees"></div>
+                <button onclick="addEmployee()" class="bg-blue-500 text-white p-2 rounded-lg mt-2 hover:bg-blue-600">Добавить сотрудника</button>
+            </div>
             <div id="clientList" class="hidden mt-4 p-4 bg-white rounded-lg shadow">
                 <h2 class="text-xl font-bold mb-2">База клиентов</h2>
                 <ul id="clientListItems"></ul>
@@ -122,18 +139,22 @@
     </div>
 
     <script>
-        // Список шуток
-        const jokes = [
-            "Почему программист предпочитает темную тему? Потому что светлая жрёт батарейку!",
-            "Что сказал один бесконечный цикл другому? 'Поговорим потом, я занят!'",
-            "Почему скелет не использовал компьютер? Потому что у него не было guts (внутренностей и смелости)!",
-            "Как зовут программиста, который не спит? JavaScript-маньяк!"
-        ];
+        // Предотвращение закрытия страницы при нажатии "назад" или свайпе
+        window.onpopstate = function(event) {
+            location.reload();
+        };
 
-        // Получение случайной шутки
-        function getRandomJoke() {
-            const randomIndex = Math.floor(Math.random() * jokes.length);
-            return jokes[randomIndex];
+        // Функция для получения времени в Оренбурге (UTC+5)
+        function getOrenburgTime() {
+            const now = new Date();
+            const offset = 5; // UTC+5 для Оренбурга
+            const localTime = new Date(now.getTime() + (offset * 60 * 60 * 1000));
+            return localTime.toLocaleString('ru-RU', { hour: '2-digit', minute: '2-digit', hour12: false });
+        }
+
+        // Открытие ссылки для отзыва
+        function openReview() {
+            window.open('https://yandex.ru/maps/org/game_zone/52624971299/reviews/?add-review=true&ll=55.223838%2C51.808670&mode=search&sll=55.157921%2C51.808632&source=serp_navig&tab=reviews&text=%D1%8F%D0%BD%D0%B4%D0%B5%D0%BA%D1%81%20gamezone%20%D0%BE%D1%80%D0%B5%D0%BD%D0%B1%D1%83%D1%80%D0%B3&z=12', '_blank');
         }
 
         // Инициализация списка администраторов
@@ -152,13 +173,18 @@
         // Проверка, является ли номер администраторским
         function isAdmin(phone) {
             const admins = JSON.parse(localStorage.getItem('admins')) || [];
-            return admins.some(admin => admin.phone === phone);
+            return admins.some(admin => normalizePhone(admin.phone) === normalizePhone(phone));
+        }
+
+        // Нормализация номера телефона (удаление лишних символов и приведение к +7)
+        function normalizePhone(phone) {
+            return phone.replace(/[^\d]/g, '').replace(/^8/, '+7');
         }
 
         // Обновление статистики администратора
         function updateAdminStats(phone, pointsAdded = 0, pointsDeducted = 0) {
             const admins = JSON.parse(localStorage.getItem('admins')) || [];
-            const admin = admins.find(a => a.phone === phone);
+            const admin = admins.find(a => a.phone === normalizePhone(phone));
             if (admin) {
                 admin.pointsAdded += pointsAdded;
                 admin.pointsDeducted += pointsDeducted;
@@ -178,7 +204,7 @@
         // Сохранение пользователя в localStorage с датой
         function saveUser(identifier, type, firstName, lastName, birthDate, userId, points = 0) {
             const users = JSON.parse(localStorage.getItem('users')) || [];
-            const registrationDate = new Date().toLocaleString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Europe/Berlin' });
+            const registrationDate = new Date().toLocaleString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' + 5 });
             users.push({ identifier, type, firstName, lastName, birthDate, userId, points, registrationDate });
             localStorage.setItem('users', JSON.stringify(users));
         }
@@ -201,10 +227,10 @@
             return user;
         }
 
-        // Поиск пользователя по идентификатору (email или phone)
+        // Поиск пользователя по идентификатору (phone)
         function findUserByIdentifier(identifier, type) {
             const users = JSON.parse(localStorage.getItem('users')) || [];
-            return users.find(user => user.identifier === identifier && user.type === type);
+            return users.find(user => normalizePhone(user.identifier) === normalizePhone(identifier) && user.type === type);
         }
 
         // Поиск пользователя по userId
@@ -213,14 +239,9 @@
             return users.find(user => user.userId === userId);
         }
 
-        // Валидация email
-        function isValidEmail(email) {
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-        }
-
         // Валидация номера телефона (для России: +7 или 8 и 10 цифр)
         function isValidPhone(phone) {
-            return /^\+?7[0-9]{10}$|^8[0-9]{10}$/.test(phone);
+            return /^(\+?7|8)[0-9]{10}$/.test(phone.replace(/[^\d]/g, ''));
         }
 
         // Валидация имени и фамилии
@@ -228,7 +249,7 @@
             return name.trim().length > 0;
         }
 
-        // Валидация даты рождения (старше 16 лет на 05.08.2025)
+        // Валидация даты рождения (старше 14 лет на 05.08.2025)
         function isValidBirthDate(birthDate) {
             const date = new Date(birthDate);
             const today = new Date('2025-08-05');
@@ -237,7 +258,7 @@
             if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())) {
                 age--;
             }
-            return !isNaN(date) && date <= today && age >= 16;
+            return !isNaN(date) && date <= today && age >= 14;
         }
 
         // Показать/скрыть поля регистрации
@@ -255,16 +276,15 @@
             document.getElementById('displayFirstName').textContent = user.firstName;
             document.getElementById('displayLastName').textContent = user.lastName;
             document.getElementById('displayIdentifier').textContent = user.identifier;
-            document.getElementById('displayType').textContent = user.type === 'email' ? 'Email' : 'Телефон';
+            document.getElementById('displayType').textContent = user.type === 'phone' ? 'Телефон' : 'Телефон';
             document.getElementById('displayPoints').textContent = user.points || 0;
-            // Добавление приветствия и даты
+            // Обновление приветствия с текущей датой и временем в Оренбурге
             const welcomeMessage = document.getElementById('welcomeMessage');
-            welcomeMessage.textContent = `Привет, ${user.firstName}! Сегодня среда, 06 августа 2025 года, 01:02 PM CEST.`;
+            welcomeMessage.textContent = `Привет, ${user.firstName}! Сегодня среда, 06 августа 2025 года, ${getOrenburgTime()} ORE.`;
         }
 
         // Регистрация пользователя
         function registerUser() {
-            const inputType = document.getElementById('inputType').value;
             const userInput = document.getElementById('userInput').value.trim();
             const firstNameInput = document.getElementById('firstNameInput').value.trim();
             const lastNameInput = document.getElementById('lastNameInput').value.trim();
@@ -276,11 +296,7 @@
             toggleRegistrationFields(true);
 
             // Валидация
-            if (inputType === 'email' && !isValidEmail(userInput)) {
-                qrMessage.textContent = 'Пожалуйста, введите корректный email.';
-                return;
-            }
-            if (inputType === 'phone' && !isValidPhone(userInput)) {
+            if (!isValidPhone(userInput)) {
                 qrMessage.textContent = 'Пожалуйста, введите корректный номер телефона (например, +71234567890 или 81234567890).';
                 return;
             }
@@ -293,20 +309,20 @@
                 return;
             }
             if (!isValidBirthDate(birthDateInput)) {
-                qrMessage.textContent = 'Пожалуйста, введите корректную дату рождения (возраст должен быть 16+).';
+                qrMessage.textContent = 'Пожалуйста, введите корректную дату рождения (возраст должен быть 14+).';
                 return;
             }
 
             // Проверка, не зарегистрирован ли уже пользователь
-            if (findUserByIdentifier(userInput, inputType)) {
-                qrMessage.textContent = 'Этот ' + (inputType === 'email' ? 'email' : 'номер телефона') + ' уже зарегистрирован.';
+            if (findUserByIdentifier(userInput, 'phone')) {
+                qrMessage.textContent = 'Этот номер телефона уже зарегистрирован.';
                 return;
             }
 
             const userId = generateUUID();
-            saveUser(userInput, inputType, firstNameInput, lastNameInput, birthDateInput, userId);
+            saveUser(userInput, 'phone', firstNameInput, lastNameInput, birthDateInput, userId);
 
-            const user = findUserByIdentifier(userInput, inputType);
+            const user = findUserByIdentifier(userInput, 'phone');
             qrCodeContainer.innerHTML = '';
             new QRCode(qrCodeContainer, {
                 text: userId,
@@ -325,7 +341,6 @@
 
         // Вход пользователя
         function loginUser() {
-            const inputType = document.getElementById('inputType').value;
             const userInput = document.getElementById('userInput').value.trim();
             const qrCodeContainer = document.getElementById('qrCodeContainer');
             const qrMessage = document.getElementById('qrMessage');
@@ -333,18 +348,14 @@
             // Скрыть поля регистрации при входе
             toggleRegistrationFields(false);
 
-            if (inputType === 'email' && !isValidEmail(userInput)) {
-                qrMessage.textContent = 'Пожалуйста, введите корректный email.';
-                return;
-            }
-            if (inputType === 'phone' && !isValidPhone(userInput)) {
+            if (!isValidPhone(userInput)) {
                 qrMessage.textContent = 'Пожалуйста, введите корректный номер телефона (например, +71234567890 или 81234567890).';
                 return;
             }
 
-            const user = findUserByIdentifier(userInput, inputType);
+            const user = findUserByIdentifier(userInput, 'phone');
             if (!user) {
-                qrMessage.textContent = 'Пользователь с таким ' + (inputType === 'email' ? 'email' : 'номер телефона') + ' не найден.';
+                qrMessage.textContent = 'Пользователь с таким номером телефона не найден.';
                 return;
             }
 
@@ -366,7 +377,7 @@
             const loginMessage = document.getElementById('adminLoginMessage');
 
             if (!isValidPhone(phoneInput)) {
-                loginMessage.textContent = 'Пожалуйста, введите корректный номер телефона (например, +71234567890).';
+                loginMessage.textContent = 'Пожалуйста, введите корректный номер телефона (например, +71234567890 или 81234567890).';
                 return;
             }
 
@@ -381,15 +392,20 @@
             document.getElementById('adminPhone').textContent = phoneInput;
             document.getElementById('adminPointsAdded').textContent = admin.pointsAdded || 0;
             document.getElementById('adminPointsDeducted').textContent = admin.pointsDeducted || 0;
-            // Добавление приветствия, даты и шутки для +79878808777
+            // Обновление приветствия с текущей датой и временем в Оренбурге
             const adminWelcomeMessage = document.getElementById('adminWelcomeMessage');
-            adminWelcomeMessage.textContent = `Привет, администратор! Сегодня среда, 06 августа 2025 года, 01:02 PM CEST.`;
-            if (phoneInput === '+79878808777') {
-                const joke = getRandomJoke();
-                adminWelcomeMessage.textContent += ` А вот и шутка дня: ${joke}`;
+            adminWelcomeMessage.textContent = `Привет, администратор! Сегодня среда, 06 августа 2025 года, ${getOrenburgTime()} ORE.`;
+            // Показать кнопку "Смена" только для +79878808777
+            const shiftButton = document.getElementById('shiftButton');
+            if (normalizePhone(phoneInput) === '+79878808777') {
+                shiftButton.classList.remove('hidden');
+            } else {
+                shiftButton.classList.add('hidden');
             }
             loginMessage.textContent = '';
             document.getElementById('adminPhoneInput').value = '';
+            // Обнуление продаж в воскресенье в 00:00 (по ORE)
+            checkResetSales();
         }
 
         // Показать список клиентов
@@ -404,7 +420,7 @@
                 users.forEach(user => {
                     const li = document.createElement('li');
                     li.className = 'mb-2';
-                    li.innerHTML = `<strong>${user.firstName} ${user.lastName}</strong> (ID: ${user.userId}, Тип: ${user.type === 'email' ? 'Email' : 'Телефон'}, Последняя регистрация: ${user.registrationDate})`;
+                    li.innerHTML = `<strong>${user.firstName} ${user.lastName}</strong> (ID: ${user.userId}, Тип: Телефон, Последняя регистрация: ${user.registrationDate})`;
                     clientListItems.appendChild(li);
                 });
             }
@@ -432,109 +448,9 @@
             document.getElementById('scanResult').textContent = '';
             stopScanner();
             document.getElementById('clientList').classList.add('hidden'); // Скрыть список при выходе
+            document.getElementById('qrScanner').classList.add('hidden'); // Убедимся, что сканер скрыт
+            document.getElementById('salesForm').classList.add('hidden');
+            document.getElementById('shiftInfo').classList.add('hidden');
         }
 
-        // Инициализация сканера
-        let html5QrcodeScanner = null;
-        function startScanner() {
-            const scanResult = document.getElementById('scanResult');
-            const scanAction = document.getElementById('scanAction').value;
-            const adminPhone = document.getElementById('adminPhone').textContent;
-            scanResult.textContent = 'Наведите камеру на QR-код...';
-            html5QrcodeScanner = new Html5Qrcode('qrScanner');
-            html5QrcodeScanner.start(
-                { facingMode: 'environment' },
-                { fps: 10, qrbox: { width: 250, height: 250 } },
-                (decodedText) => {
-                    const isAdd = scanAction === 'add';
-                    const user = updateUserPoints(decodedText, 10, isAdd);
-                    if (user) {
-                        updateAdminStats(adminPhone, isAdd ? 10 : 0, isAdd ? 0 : 10);
-                        document.getElementById('adminPointsAdded').textContent = (parseInt(document.getElementById('adminPointsAdded').textContent) || 0) + (isAdd ? 10 : 0);
-                        document.getElementById('adminPointsDeducted').textContent = (parseInt(document.getElementById('adminPointsDeducted').textContent) || 0) + (isAdd ? 0 : 10);
-                        scanResult.textContent = `Пользователь найден: ${user.firstName} ${user.lastName}, ${user.birthDate}, ${user.identifier} (${user.type === 'email' ? 'Email' : 'Телефон'}), Бонусы: ${user.points}`;
-                    } else {
-                        scanResult.textContent = isAdd ? 'QR-код недействителен.' : 'Недостаточно бонусов для списания.';
-                    }
-                    stopScanner();
-                },
-                (error) => {
-                    // Игнорировать ошибки сканирования
-                }
-            ).catch((err) => {
-                scanResult.textContent = 'Ошибка доступа к камере.';
-            });
-        }
-
-        // Остановка сканера
-        function stopScanner() {
-            if (html5QrcodeScanner) {
-                html5QrcodeScanner.stop().then(() => {
-                    html5QrcodeScanner = null;
-                }).catch(() => {});
-            }
-        }
-
-        // Инициализация
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeAdmins();
-            showClientInterface();
-        });
-        if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js')
-    .then(() => console.log('Service Worker зарегистрирован'))
-    .catch((error) => console.error('Ошибка регистрации Service Worker:', error));
-}
-// Проверка первого посещения и предложение установки
-document.addEventListener('DOMContentLoaded', () => {
-  initializeAdmins();
-  showClientInterface();
-
-  if (localStorage.getItem('visited') !== 'true') {
-    if ('BeforeInstallPromptEvent' in window) {
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault(); // Предотвращаем автоматическое появление
-        const installPrompt = e;
-
-        const installMessage = document.createElement('div');
-        installMessage.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-        installMessage.innerHTML = `
-          <div class="bg-white p-4 rounded-lg shadow-lg text-center">
-            <h2 class="text-xl font-bold mb-2">Добавить на главный экран?</h2>
-            <p class="mb-4">Для удобства добавьте сайт на домашний экран!</p>
-            <button onclick="installApp()" class="bg-blue-500 text-white p-2 rounded-lg mr-2 hover:bg-blue-600">Добавить</button>
-            <button onclick="closeInstallMessage()" class="bg-gray-500 text-white p-2 rounded-lg hover:bg-gray-600">Отмена</button>
-          </div>
-        `;
-        document.body.appendChild(installMessage);
-
-        window.installPrompt = installPrompt;
-      });
-    }
-    localStorage.setItem('visited', 'true');
-  }
-});
-
-// Функции для установки и закрытия
-function installApp() {
-  if (window.installPrompt) {
-    window.installPrompt.prompt();
-    window.installPrompt.userChoice.then((choice) => {
-      if (choice.outcome === 'accepted') {
-        console.log('Пользователь согласился установить');
-      } else {
-        console.log('Пользователь отказался');
-      }
-      window.installPrompt = null;
-    });
-  }
-  closeInstallMessage();
-}
-
-function closeInstallMessage() {
-  const installMessage = document.querySelector('.fixed');
-  if (installMessage) installMessage.remove();
-}
-    </script>
-</body>
-</html>
+        // Переключение сканера
