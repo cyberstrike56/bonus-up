@@ -73,6 +73,7 @@
                 <button onclick="loginUser()" class="w-full bg-gray-500 text-white p-2 rounded-lg mt-2 hover:bg-gray-600">Войти</button>
             </div>
             <div id="userInfo" class="hidden mb-4 p-4 bg-white rounded-lg shadow">
+                <p id="welcomeMessage" class="text-center mb-2"></p>
                 <p><strong>Имя:</strong> <span id="displayFirstName"></span></p>
                 <p><strong>Фамилия:</strong> <span id="displayLastName"></span></p>
                 <p><strong>Идентификатор:</strong> <span id="displayIdentifier"></span> (<span id="displayType"></span>)</p>
@@ -96,6 +97,7 @@
         <div id="adminScanner" class="hidden">
             <h1 class="text-2xl font-bold text-center mb-4">Сканер QR-кода</h1>
             <div class="mb-4 p-4 bg-white rounded-lg shadow">
+                <p id="adminWelcomeMessage" class="text-center mb-2"></p>
                 <p><strong>Администратор:</strong> <span id="adminPhone"></span></p>
                 <p><strong>Начислено бонусов:</strong> <span id="adminPointsAdded">0</span></p>
                 <p><strong>Списано бонусов:</strong> <span id="adminPointsDeducted">0</span></p>
@@ -105,14 +107,34 @@
                     <option value="add">Начислить бонусы</option>
                     <option value="deduct">Списать бонусы</option>
                 </select>
+                <button onclick="showClientList()" class="bg-yellow-500 text-white p-2 rounded-lg hover:bg-yellow-600">Показать базу клиентов</button>
+                <a href="https://wa.me/1234567890" target="_blank" class="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 text-center w-full">WhatsApp</a>
             </div>
             <div id="qrScanner" class="w-full h-64 bg-gray-200 rounded-lg"></div>
             <p id="scanResult" class="text-center mt-4"></p>
             <button onclick="startScanner()" class="w-full bg-green-500 text-white p-2 rounded-lg mt-2 hover:bg-green-600">Начать сканирование</button>
+            <div id="clientList" class="hidden mt-4 p-4 bg-white rounded-lg shadow">
+                <h2 class="text-xl font-bold mb-2">База клиентов</h2>
+                <ul id="clientListItems"></ul>
+            </div>
         </div>
     </div>
 
     <script>
+        // Список шуток
+        const jokes = [
+            "Почему программист предпочитает темную тему? Потому что светлая жрёт батарейку!",
+            "Что сказал один бесконечный цикл другому? 'Поговорим потом, я занят!'",
+            "Почему скелет не использовал компьютер? Потому что у него не было guts (внутренностей и смелости)!",
+            "Как зовут программиста, который не спит? JavaScript-маньяк!"
+        ];
+
+        // Получение случайной шутки
+        function getRandomJoke() {
+            const randomIndex = Math.floor(Math.random() * jokes.length);
+            return jokes[randomIndex];
+        }
+
         // Инициализация списка администраторов
         function initializeAdmins() {
             const admins = [
@@ -152,10 +174,11 @@
             });
         }
 
-        // Сохранение пользователя в localStorage
+        // Сохранение пользователя в localStorage с датой
         function saveUser(identifier, type, firstName, lastName, birthDate, userId, points = 0) {
             const users = JSON.parse(localStorage.getItem('users')) || [];
-            users.push({ identifier, type, firstName, lastName, birthDate, userId, points });
+            const registrationDate = new Date().toLocaleString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Europe/Berlin' });
+            users.push({ identifier, type, firstName, lastName, birthDate, userId, points, registrationDate });
             localStorage.setItem('users', JSON.stringify(users));
         }
 
@@ -233,6 +256,9 @@
             document.getElementById('displayIdentifier').textContent = user.identifier;
             document.getElementById('displayType').textContent = user.type === 'email' ? 'Email' : 'Телефон';
             document.getElementById('displayPoints').textContent = user.points || 0;
+            // Добавление приветствия и даты
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            welcomeMessage.textContent = `Привет, ${user.firstName}! Сегодня среда, 06 августа 2025 года, 01:02 PM CEST.`;
         }
 
         // Регистрация пользователя
@@ -317,7 +343,7 @@
 
             const user = findUserByIdentifier(userInput, inputType);
             if (!user) {
-                qrMessage.textContent = 'Пользователь с таким ' + (inputType === 'email' ? 'email' : 'номером телефона') + ' не найден.';
+                qrMessage.textContent = 'Пользователь с таким ' + (inputType === 'email' ? 'email' : 'номер телефона') + ' не найден.';
                 return;
             }
 
@@ -354,8 +380,34 @@
             document.getElementById('adminPhone').textContent = phoneInput;
             document.getElementById('adminPointsAdded').textContent = admin.pointsAdded || 0;
             document.getElementById('adminPointsDeducted').textContent = admin.pointsDeducted || 0;
+            // Добавление приветствия, даты и шутки для +79878808777
+            const adminWelcomeMessage = document.getElementById('adminWelcomeMessage');
+            adminWelcomeMessage.textContent = `Привет, администратор! Сегодня среда, 06 августа 2025 года, 01:02 PM CEST.`;
+            if (phoneInput === '+79878808777') {
+                const joke = getRandomJoke();
+                adminWelcomeMessage.textContent += ` А вот и шутка дня: ${joke}`;
+            }
             loginMessage.textContent = '';
             document.getElementById('adminPhoneInput').value = '';
+        }
+
+        // Показать список клиентов
+        function showClientList() {
+            const clientList = document.getElementById('clientList');
+            const clientListItems = document.getElementById('clientListItems');
+            clientListItems.innerHTML = ''; // Очистка списка
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            if (users.length === 0) {
+                clientListItems.innerHTML = '<li class="text-center">Нет зарегистрированных клиентов.</li>';
+            } else {
+                users.forEach(user => {
+                    const li = document.createElement('li');
+                    li.className = 'mb-2';
+                    li.innerHTML = `<strong>${user.firstName} ${user.lastName}</strong> (ID: ${user.userId}, Тип: ${user.type === 'email' ? 'Email' : 'Телефон'}, Последняя регистрация: ${user.registrationDate})`;
+                    clientListItems.appendChild(li);
+                });
+            }
+            clientList.classList.remove('hidden');
         }
 
         // Показать клиентский интерфейс
@@ -378,6 +430,7 @@
             document.getElementById('adminScanner').classList.add('hidden');
             document.getElementById('scanResult').textContent = '';
             stopScanner();
+            document.getElementById('clientList').classList.add('hidden'); // Скрыть список при выходе
         }
 
         // Инициализация сканера
