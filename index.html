@@ -450,7 +450,17 @@
                 users.forEach(user => {
                     const li = document.createElement('li');
                     li.className = 'mb-2';
-                    li.innerHTML = `<strong>${user.firstName} ${user.lastName}</strong> (ID: ${user.userId}, Тип: Телефон, Последняя регистрация: ${user.registrationDate})`;
+                    const birthDate = new Date(user.birthDate);
+                    const today = new Date('2025-08-28');
+                    const isBirthday = birthDate.getMonth() === today.getMonth() && birthDate.getDate() === today.getDate();
+                    const birthdayText = isBirthday ? ' (Сегодня день рождения!)' : '';
+                    li.innerHTML = `<strong>${user.firstName} ${user.lastName}</strong> (ID: ${user.userId}, Телефон: ${user.identifier}, Дата рождения: ${birthDate.toLocaleDateString('ru-RU')}${birthdayText})`;
+                    if (isBirthday) {
+                        const whatsappLink = `https://wa.me/${user.identifier.replace('+', '')}?text=Здравствуйте!%20Поздравляем%20вас%20с%20днём%20рождения!%20Желаем%20всего%20самого%20что%20бы%20вы%20сами%20себе%20пожелали%20умноженное%20на%20миллион,%20начислим%20вам%20500%20бонусов%20при%20посещении%20нашего%20парка%20;)%20Отличного%20дня!`;
+                        const telegramLink = `https://t.me/${user.identifier.replace('+', '')}?text=Здравствуйте!%20Поздравляем%20вас%20с%20днём%20рождения!%20Желаем%20всего%20самого%20что%20бы%20вы%20сами%20себе%20пожелали%20умноженное%20на%20миллион,%20начислим%20вам%20500%20бонусов%20при%20посещении%20нашего%20парка%20;)%20Отличного%20дня!`;
+                        li.innerHTML += ` <a href="${whatsappLink}" target="_blank" class="text-green-500 ml-2">WhatsApp</a>`;
+                        li.innerHTML += ` <a href="${telegramLink}" target="_blank" class="text-blue-500 ml-2">Telegram</a>`;
+                    }
                     clientListItems.appendChild(li);
                 });
             }
