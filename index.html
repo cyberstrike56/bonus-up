@@ -176,13 +176,13 @@
             }
             let normalized = phone.replace(/[^\d]/g, '');
             if (normalized.length === 11) {
-                if (normalized.startsWith('8') && normalized[1] === '9') { // Предполагаем, что мобильные номера начинаются с 8 или +7
+                if (normalized.startsWith('8')) {
                     return '+7' + normalized.slice(1);
-                } else if (normalized.startsWith('7') && normalized[1] === '9') {
+                } else if (normalized.startsWith('7')) {
                     return '+' + normalized;
                 }
             }
-            return normalized;
+            return normalized.length === 11 ? '+' + normalized : normalized;
         }
 
         // Обновление статистики администратора
@@ -211,7 +211,7 @@
         function saveUser(identifier, type, firstName, lastName, birthDate, userId, points = 0) {
             if (!identifier) return;
             const users = JSON.parse(localStorage.getItem('users')) || [];
-            const registrationDate = new Date().toLocaleString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC+5' });
+            const registrationDate = new Date().toLocaleString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
             users.push({ identifier, type, firstName, lastName, birthDate, userId, points, registrationDate });
             localStorage.setItem('users', JSON.stringify(users));
             console.log('Пользователь сохранён:', { identifier, userId });
@@ -353,7 +353,7 @@
             toggleRegistrationFields(false);
         }
 
-        // Отобразить информацию о пользователях
+        // Отобразить информацию о пользователе
         function displayUserInfo(user) {
             document.getElementById('loginForm').classList.add('hidden');
             document.getElementById('userInfo').classList.remove('hidden');
@@ -457,8 +457,9 @@
                     const normalizedPhone = normalizePhone(user.identifier);
                     li.innerHTML = `<strong>${user.firstName} ${user.lastName}</strong> (ID: ${user.userId}, Телефон: ${normalizedPhone}, Дата рождения: ${birthDate.toLocaleDateString('ru-RU')}${birthdayText})`;
                     if (isBirthday) {
-                        const whatsappLink = `https://wa.me/${normalizedPhone.replace('+', '')}?text=Здравствуйте!%20Поздравляем%20вас%20с%20днём%20рождения!%20Желаем%20всего%20самого%20что%20бы%20вы%20сами%20себе%20пожелали%20умноженное%20на%20миллион,%20начислим%20вам%20500%20бонусов%20при%20посещении%20нашего%20парка%20;)%20Отличного%20дня!`;
-                        const telegramLink = `tg://resolve?domain=${normalizedPhone.replace('+', '')}&text=Здравствуйте!%20Поздравляем%20вас%20с%20днём%20рождения!%20Желаем%20всего%20самого%20что%20бы%20вы%20сами%20себе%20пожелали%20умноженное%20на%20миллион,%20начислим%20вам%20500%20бонусов%20при%20посещении%20нашего%20парка%20;)%20Отличного%20дня!`;
+                        const encodedText = encodeURIComponent('Здравствуйте! Поздравляем вас с днём рождения! Желаем всего самого что бы вы сами себе пожелали умноженное на миллион, начислим вам 500 бонусов при посещении нашего парка ;) Отличного дня!');
+                        const whatsappLink = `https://wa.me/${normalizedPhone.replace('+', '')}?text=${encodedText}`;
+                        const telegramLink = `tg://msg_url?url=${encodedText}`;
                         li.innerHTML += ` <a href="${whatsappLink}" target="_blank" class="text-green-500 ml-2">WhatsApp</a>`;
                         li.innerHTML += ` <a href="${telegramLink}" target="_blank" class="text-blue-500 ml-2">Telegram</a>`;
                     }
