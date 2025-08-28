@@ -56,6 +56,7 @@
                 <button onclick="showClientInterface()" class="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600">Клиент</button>
                 <button onclick="showAdminLogin()" class="bg-green-500 text-white p-2 rounded-lg hover:bg-green-600">Админ</button>
             </div>
+            <p class="mt-2 text-lg text-gray-700">Приветствуем вас в партнерской программе Gamezone</p>
         </div>
 
         <!-- Клиентский интерфейс -->
@@ -66,7 +67,8 @@
                 <input id="firstNameInput" type="text" placeholder="Введите имя" class="w-full p-2 border rounded-lg mb-2 focus:outline-none hidden" data-registration-only>
                 <input id="lastNameInput" type="text" placeholder="Введите фамилию" class="w-full p-2 border rounded-lg mb-2 focus:outline-none hidden" data-registration-only>
                 <input id="birthDateInput" type="date" placeholder="Дата рождения" class="w-full p-2 border rounded-lg mb-2 focus:outline-none hidden" data-registration-only>
-                <button onclick="registerUser()" class="w-full bg-blue-500 text-white p-2 rounded-lg mt-2 hover:bg-blue-600">Зарегистрироваться</button>
+                <button id="startRegisterButton" onclick="startRegistration()" class="w-full bg-blue-500 text-white p-2 rounded-lg mt-2 hover:bg-blue-600">Зарегистрироваться</button>
+                <button id="finishRegisterButton" onclick="registerUser()" class="w-full bg-blue-500 text-white p-2 rounded-lg mt-2 hover:bg-blue-600 hidden">Завершить регистрацию</button>
                 <button onclick="loginUser()" class="w-full bg-gray-500 text-white p-2 rounded-lg mt-2 hover:bg-gray-600">Войти</button>
             </div>
             <div id="userInfo" class="hidden mb-4 p-4 bg-white rounded-lg shadow">
@@ -75,7 +77,7 @@
                 <p><strong>Фамилия:</strong> <span id="displayLastName"></span></p>
                 <p><strong>Идентификатор:</strong> <span id="displayIdentifier"></span> (<span id="displayType">Телефон</span>)</p>
                 <p><strong>Бонусы:</strong> <span id="displayPoints"></span></p>
-                <button onclick="openReview()" class="w-full bg-yellow-500 text-white p-2 rounded-lg mt-4 hover:bg-yellow-600">Оставить отзыв</button>
+                <button onclick="openReview()" class="w-full bg-green-500 text-white p-2 rounded-lg mt-4 hover:bg-green-600">Оставить отзыв</button>
             </div>
             <div id="qrCodeContainer" class="flex justify-center mt-4"></div>
             <p id="qrMessage" class="text-center mt-2"></p>
@@ -93,7 +95,7 @@
 
         <!-- Админский интерфейс: Сканер и статистика -->
         <div id="adminScanner" class="hidden">
-            <h1 class="text-2xl font-bold text-center mb-4">Сканер QR-кода и статистика</h1>
+            <h1 class="text-2xl font-bold text-center mb-4">Сканер QR-кода</h1>
             <div class="mb-4 p-4 bg-white rounded-lg shadow">
                 <p id="adminWelcomeMessage" class="text-center mb-2"></p>
                 <p><strong>Администратор:</strong> <span id="adminPhone"></span></p>
@@ -105,27 +107,12 @@
                     <option value="add">Начислить бонусы</option>
                     <option value="deduct">Списать бонусы</option>
                 </select>
-                <button onclick="showClientList()" class="bg-yellow-500 text-white p-2 rounded-lg hover:bg-yellow-600 w-full mx-1 mb-2">Показать базу клиентов</button>
+                <button onclick="toggleClientList()" class="bg-yellow-500 text-white p-2 rounded-lg hover:bg-yellow-600 w-full mx-1 mb-2">Показать/скрыть базу клиентов</button>
                 <a href="https://wa.me/1234567890" target="_blank" class="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 text-center w-full mx-1 mb-2">WhatsApp</a>
-                <button onclick="toggleScanner()" class="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 w-full mx-1 mb-2">Открыть/Закрыть сканер</button>
-                <button onclick="showSales('tir')" class="bg-purple-500 text-white p-2 rounded-lg hover:bg-purple-600 w-full mx-1 mb-2">Тир</button>
-                <button onclick="showSales('arcade')" class="bg-purple-500 text-white p-2 rounded-lg hover:bg-purple-600 w-full mx-1 mb-2">Аркада</button>
-                <button onclick="showSales('viar')" class="bg-purple-500 text-white p-2 rounded-lg hover:bg-purple-600 w-full mx-1 mb-2">ВИАР</button>
-                <button id="shiftButton" onclick="showShiftInfo()" class="bg-orange-500 text-white p-2 rounded-lg hover:bg-orange-600 w-full mx-1 mb-2 hidden">Смена</button>
             </div>
+            <button onclick="toggleScanner()" class="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 w-full mx-1 mb-2">Начать сканирование</button>
             <div id="qrScanner" class="w-full h-64 bg-gray-200 rounded-lg hidden"></div>
             <p id="scanResult" class="text-center mt-4"></p>
-            <div id="salesForm" class="hidden mt-4 p-4 bg-white rounded-lg shadow">
-                <h2 id="salesTitle" class="text-xl font-bold mb-2"></h2>
-                <div id="salesInputs"></div>
-                <button onclick="saveSales()" class="bg-green-500 text-white p-2 rounded-lg mt-2 hover:bg-green-600">Сохранить</button>
-                <p id="salesSummary" class="mt-2"></p>
-            </div>
-            <div id="shiftInfo" class="hidden mt-4 p-4 bg-white rounded-lg shadow">
-                <h2 class="text-xl font-bold mb-2">Информация о смене</h2>
-                <div id="shiftEmployees"></div>
-                <button onclick="addEmployee()" class="bg-blue-500 text-white p-2 rounded-lg mt-2 hover:bg-blue-600">Добавить сотрудника</button>
-            </div>
             <div id="clientList" class="hidden mt-4 p-4 bg-white rounded-lg shadow">
                 <h2 class="text-xl font-bold mb-2">База клиентов</h2>
                 <ul id="clientListItems"></ul>
@@ -139,17 +126,9 @@
             location.reload();
         };
 
-        // Функция для получения времени в Оренбурге (UTC+5)
-        function getOrenburgTime() {
-            const now = new Date();
-            const offset = 5; // UTC+5 для Оренбурга
-            const localTime = new Date(now.getTime() + (offset * 60 * 60 * 1000));
-            return localTime.toLocaleString('ru-RU', { hour: '2-digit', minute: '2-digit', hour12: false });
-        }
-
         // Открытие ссылки для отзыва
         function openReview() {
-            window.open('https://yandex.ru/maps/org/game_zone/52624971299/reviews/?add-review=true&ll=55.223838%2C51.808670&mode=search&sll=55.157921%2C51.808632&source=serp_navig&tab=reviews&text=%D1%8F%D0%BD%D0%B4%D0%B5%D0%BA%D1%81%20gamezone%20%D0%BE%D1%80%D0%B5%D0%BD%D0%B1%D1%83%D1%80%D0%B3&z=12', '_blank');
+            window.open('https://yandex.ru/maps/org/game_zone/52624971299/reviews/?add-review=true&ll=55.266994%2C51.808670&mode=search&sll=55.252704%2C51.767575&sspn=0.175095%2C0.085099&tab=reviews&text=%D1%8F%D0%BD%D0%B4%D0%B5%D0%BA%D1%81%20gamezone%20%D0%BE%D1%80%D0%B5%D0%BD%D0%B1%D1%83%D1%80%D0%B3&z=12', '_blank');
         }
 
         // Инициализация списка администраторов
@@ -158,37 +137,69 @@
                 { phone: '+71234567890', pointsAdded: 0, pointsDeducted: 0 },
                 { phone: '+70987654321', pointsAdded: 0, pointsDeducted: 0 },
                 { phone: '+79776632788', pointsAdded: 0, pointsDeducted: 0 },
-                { phone: '+79878808777', pointsAdded: 0, pointsDeducted: 0 }
+                { phone: '+79878808777', name: 'Валентина', pointsAdded: 0, pointsDeducted: 0 },
+                { phone: '+79876632788', name: 'Дмитрий', pointsAdded: 0, pointsDeducted: 0 }
             ];
-            if (!localStorage.getItem('admins')) {
+            const existingAdmins = localStorage.getItem('admins');
+            if (!existingAdmins) {
                 localStorage.setItem('admins', JSON.stringify(admins));
+                console.log('Администраторы инициализированы:', admins);
+            } else {
+                const parsedAdmins = JSON.parse(existingAdmins);
+                console.log('Существующие администраторы:', parsedAdmins);
+                admins.forEach(admin => {
+                    if (!parsedAdmins.some(a => a.phone === admin.phone)) {
+                        parsedAdmins.push(admin);
+                    }
+                });
+                localStorage.setItem('admins', JSON.stringify(parsedAdmins));
+                console.log('Обновлённый список администраторов:', parsedAdmins);
             }
         }
 
         // Проверка, является ли номер администраторским
         function isAdmin(phone) {
+            if (!phone) return false;
             const admins = JSON.parse(localStorage.getItem('admins')) || [];
-            return admins.some(admin => normalizePhone(admin.phone) === normalizePhone(phone));
+            const normalizedInput = normalizePhone(phone);
+            const normalizedAdmins = admins.map(admin => normalizePhone(admin.phone));
+            const result = normalizedAdmins.includes(normalizedInput);
+            console.log('Проверка isAdmin:', { phone, normalizedInput, normalizedAdmins, result });
+            return result;
         }
 
-        // Нормализация номера телефона (удаление лишних символов и приведение к +7)
+        // Нормализация номера телефона
         function normalizePhone(phone) {
-            return phone.replace(/[^\d]/g, '').replace(/^8/, '+7');
+            if (!phone || typeof phone !== 'string') {
+                console.warn('Некорректный номер телефона:', phone);
+                return '';
+            }
+            let normalized = phone.replace(/[^\d]/g, '');
+            if (normalized.length === 11) {
+                if (normalized.startsWith('8')) {
+                    return '+7' + normalized.slice(1);
+                } else if (normalized.startsWith('7')) {
+                    return '+' + normalized;
+                }
+            }
+            return normalized.length === 11 ? '+' + normalized : normalized;
         }
 
         // Обновление статистики администратора
         function updateAdminStats(phone, pointsAdded = 0, pointsDeducted = 0) {
+            if (!phone) return null;
             const admins = JSON.parse(localStorage.getItem('admins')) || [];
-            const admin = admins.find(a => a.phone === normalizePhone(phone));
+            const admin = admins.find(a => normalizePhone(a.phone) === normalizePhone(phone));
             if (admin) {
                 admin.pointsAdded += pointsAdded;
                 admin.pointsDeducted += pointsDeducted;
                 localStorage.setItem('admins', JSON.stringify(admins));
+                console.log('Статистика администратора обновлена:', admin);
             }
             return admin;
         }
 
-        // Генерация UUID для уникального ID пользователя
+        // Генерация UUID
         function generateUUID() {
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
                 const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
@@ -196,15 +207,17 @@
             });
         }
 
-        // Сохранение пользователя в localStorage с датой
+        // Сохранение пользователя
         function saveUser(identifier, type, firstName, lastName, birthDate, userId, points = 0) {
+            if (!identifier) return;
             const users = JSON.parse(localStorage.getItem('users')) || [];
-            const registrationDate = new Date().toLocaleString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' + 5 });
+            const registrationDate = new Date().toLocaleString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
             users.push({ identifier, type, firstName, lastName, birthDate, userId, points, registrationDate });
             localStorage.setItem('users', JSON.stringify(users));
+            console.log('Пользователь сохранён:', { identifier, userId });
         }
 
-        // Обновление бонусов пользователя
+        // Обновление бонусов
         function updateUserPoints(userId, pointsChange, isAdd) {
             const users = JSON.parse(localStorage.getItem('users')) || [];
             const user = users.find(u => u.userId === userId);
@@ -212,18 +225,18 @@
                 if (isAdd) {
                     user.points = (user.points || 0) + pointsChange;
                 } else {
-                    if ((user.points || 0) < pointsChange) {
-                        return null; // Недостаточно бонусов
-                    }
-                    user.points = (user.points || 0) - pointsChange;
+                    if ((user.points || 0) < pointsChange) return null;
+                    user.points -= pointsChange;
                 }
                 localStorage.setItem('users', JSON.stringify(users));
+                console.log('Бонусы обновлены:', { userId, points: user.points });
             }
             return user;
         }
 
-        // Поиск пользователя по идентификатору (phone)
+        // Поиск пользователя по идентификатору
         function findUserByIdentifier(identifier, type) {
+            if (!identifier) return null;
             const users = JSON.parse(localStorage.getItem('users')) || [];
             return users.find(user => normalizePhone(user.identifier) === normalizePhone(identifier) && user.type === type);
         }
@@ -234,51 +247,66 @@
             return users.find(user => user.userId === userId);
         }
 
-        // Валидация номера телефона (для России: +7 или 8 и 10 цифр)
+        // Валидация номера телефона
         function isValidPhone(phone) {
-            return /^(\+?7|8)[0-9]{10}$/.test(phone.replace(/[^\d]/g, ''));
+            if (!phone || typeof phone !== 'string') {
+                console.warn('Некорректный ввод номера телефона:', phone);
+                return false;
+            }
+            const normalized = normalizePhone(phone);
+            const isValid = (/^(\+7|8)[0-9]{10}$/.test(normalized) && normalized.length === 11) || normalized.startsWith('+7');
+            console.log('Валидация телефона:', { phone, normalized, isValid });
+            return isValid;
         }
 
-        // Валидация имени и фамилии
+        // Валидация имени
         function isValidName(name) {
-            return name.trim().length > 0;
+            return name && name.trim().length > 0;
         }
 
-        // Валидация даты рождения (старше 14 лет на 05.08.2025)
+        // Валидация даты рождения
         function isValidBirthDate(birthDate) {
             const date = new Date(birthDate);
-            const today = new Date('2025-08-05');
+            const today = new Date('2025-08-28');
             const age = today.getFullYear() - date.getFullYear();
             const monthDiff = today.getMonth() - date.getMonth();
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())) {
-                age--;
-            }
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())) age--;
             return !isNaN(date) && date <= today && age >= 14;
         }
 
         // Показать/скрыть поля регистрации
         function toggleRegistrationFields(show) {
             const fields = document.querySelectorAll('[data-registration-only]');
-            fields.forEach(field => {
-                field.classList.toggle('hidden', !show);
-            });
+            fields.forEach(field => field.classList.toggle('hidden', !show));
+            document.getElementById('startRegisterButton').classList.toggle('hidden', show);
+            document.getElementById('finishRegisterButton').classList.toggle('hidden', !show);
         }
 
-        // Отобразить информацию о пользователе
-        function displayUserInfo(user) {
-            document.getElementById('loginForm').classList.add('hidden');
-            document.getElementById('userInfo').classList.remove('hidden');
-            document.getElementById('displayFirstName').textContent = user.firstName;
-            document.getElementById('displayLastName').textContent = user.lastName;
-            document.getElementById('displayIdentifier').textContent = user.identifier;
-            document.getElementById('displayType').textContent = user.type === 'phone' ? 'Телефон' : 'Телефон';
-            document.getElementById('displayPoints').textContent = user.points || 0;
-            // Обновление приветствия с текущей датой и временем в Оренбурге
-            const welcomeMessage = document.getElementById('welcomeMessage');
-            welcomeMessage.textContent = `Привет, ${user.firstName}! Сегодня среда, 06 августа 2025 года, ${getOrenburgTime()} ORE.`;
+        // Старт процесса регистрации
+        function startRegistration() {
+            const userInput = document.getElementById('userInput').value.trim();
+            const qrMessage = document.getElementById('qrMessage');
+
+            if (!userInput) {
+                qrMessage.textContent = 'Пожалуйста, введите номер телефона.';
+                return;
+            }
+
+            if (!isValidPhone(userInput)) {
+                qrMessage.textContent = 'Пожалуйста, введите корректный номер телефона (например, +71234567890 или 81234567890).';
+                return;
+            }
+
+            if (findUserByIdentifier(userInput, 'phone')) {
+                qrMessage.textContent = 'Этот номер телефона уже зарегистрирован.';
+                return;
+            }
+
+            toggleRegistrationFields(true);
+            qrMessage.textContent = 'Введите имя, фамилию и дату рождения для завершения регистрации.';
         }
 
-        // Регистрация пользователя
+        // Завершение регистрации
         function registerUser() {
             const userInput = document.getElementById('userInput').value.trim();
             const firstNameInput = document.getElementById('firstNameInput').value.trim();
@@ -287,10 +315,11 @@
             const qrCodeContainer = document.getElementById('qrCodeContainer');
             const qrMessage = document.getElementById('qrMessage');
 
-            // Показать поля регистрации
-            toggleRegistrationFields(true);
+            if (!userInput || !firstNameInput || !lastNameInput || !birthDateInput) {
+                qrMessage.textContent = 'Пожалуйста, заполните все поля.';
+                return;
+            }
 
-            // Валидация
             if (!isValidPhone(userInput)) {
                 qrMessage.textContent = 'Пожалуйста, введите корректный номер телефона (например, +71234567890 или 81234567890).';
                 return;
@@ -308,22 +337,12 @@
                 return;
             }
 
-            // Проверка, не зарегистрирован ли уже пользователь
-            if (findUserByIdentifier(userInput, 'phone')) {
-                qrMessage.textContent = 'Этот номер телефона уже зарегистрирован.';
-                return;
-            }
-
             const userId = generateUUID();
             saveUser(userInput, 'phone', firstNameInput, lastNameInput, birthDateInput, userId);
 
             const user = findUserByIdentifier(userInput, 'phone');
             qrCodeContainer.innerHTML = '';
-            new QRCode(qrCodeContainer, {
-                text: userId,
-                width: 200,
-                height: 200
-            });
+            new QRCode(qrCodeContainer, { text: userId, width: 200, height: 200 });
 
             qrMessage.textContent = 'Ваш QR-код для накопления бонусов готов!';
             displayUserInfo(user);
@@ -334,13 +353,30 @@
             toggleRegistrationFields(false);
         }
 
+        // Отобразить информацию о пользователе
+        function displayUserInfo(user) {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('userInfo').classList.remove('hidden');
+            document.getElementById('displayFirstName').textContent = user.firstName;
+            document.getElementById('displayLastName').textContent = user.lastName;
+            document.getElementById('displayIdentifier').textContent = user.identifier;
+            document.getElementById('displayType').textContent = 'Телефон';
+            document.getElementById('displayPoints').textContent = user.points || 0;
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            welcomeMessage.textContent = `Привет, ${user.firstName}!`;
+        }
+
         // Вход пользователя
         function loginUser() {
             const userInput = document.getElementById('userInput').value.trim();
             const qrCodeContainer = document.getElementById('qrCodeContainer');
             const qrMessage = document.getElementById('qrMessage');
 
-            // Скрыть поля регистрации при входе
+            if (!userInput) {
+                qrMessage.textContent = 'Пожалуйста, введите номер телефона.';
+                return;
+            }
+
             toggleRegistrationFields(false);
 
             if (!isValidPhone(userInput)) {
@@ -355,11 +391,7 @@
             }
 
             qrCodeContainer.innerHTML = '';
-            new QRCode(qrCodeContainer, {
-                text: user.userId,
-                width: 200,
-                height: 200
-            });
+            new QRCode(qrCodeContainer, { text: user.userId, width: 200, height: 200 });
 
             qrMessage.textContent = 'Ваш QR-код восстановлен!';
             displayUserInfo(user);
@@ -371,43 +403,46 @@
             const phoneInput = document.getElementById('adminPhoneInput').value.trim();
             const loginMessage = document.getElementById('adminLoginMessage');
 
+            if (!phoneInput) {
+                loginMessage.textContent = 'Пожалуйста, введите номер телефона.';
+                return;
+            }
+
             if (!isValidPhone(phoneInput)) {
                 loginMessage.textContent = 'Пожалуйста, введите корректный номер телефона (например, +71234567890 или 81234567890).';
                 return;
             }
 
             if (!isAdmin(phoneInput)) {
-                loginMessage.textContent = 'Доступ запрещен: номер телефона не зарегистрирован как администраторский.';
+                loginMessage.textContent = 'Доступ запрещен: номер телефона не зарегистрирован как администраторский. Проверьте формат (+79878808777).';
                 return;
             }
 
             document.getElementById('adminLogin').classList.add('hidden');
             document.getElementById('adminScanner').classList.remove('hidden');
-            const admin = updateAdminStats(phoneInput); // Загрузить статистику
+            const admin = updateAdminStats(phoneInput);
             document.getElementById('adminPhone').textContent = phoneInput;
             document.getElementById('adminPointsAdded').textContent = admin.pointsAdded || 0;
             document.getElementById('adminPointsDeducted').textContent = admin.pointsDeducted || 0;
-            // Обновление приветствия с текущей датой и временем в Оренбурге
             const adminWelcomeMessage = document.getElementById('adminWelcomeMessage');
-            adminWelcomeMessage.textContent = `Привет, администратор! Сегодня среда, 06 августа 2025 года, ${getOrenburgTime()} ORE.`;
-            // Показать кнопку "Смена" только для +79878808777
-            const shiftButton = document.getElementById('shiftButton');
-            if (normalizePhone(phoneInput) === '+79878808777') {
-                shiftButton.classList.remove('hidden');
-            } else {
-                shiftButton.classList.add('hidden');
-            }
+            adminWelcomeMessage.textContent = `Привет, администратор!`;
             loginMessage.textContent = '';
             document.getElementById('adminPhoneInput').value = '';
-            // Обнуление продаж в воскресенье в 00:00 (по ORE)
-            checkResetSales();
         }
 
-        // Показать список клиентов
-        function showClientList() {
+        // Показать/скрыть список клиентов
+        function toggleClientList() {
             const clientList = document.getElementById('clientList');
+            clientList.classList.toggle('hidden');
+            if (!clientList.classList.contains('hidden')) {
+                showClientList();
+            }
+        }
+
+        // Отобразить список клиентов
+        function showClientList() {
             const clientListItems = document.getElementById('clientListItems');
-            clientListItems.innerHTML = ''; // Очистка списка
+            clientListItems.innerHTML = '';
             const users = JSON.parse(localStorage.getItem('users')) || [];
             if (users.length === 0) {
                 clientListItems.innerHTML = '<li class="text-center">Нет зарегистрированных клиентов.</li>';
@@ -419,7 +454,6 @@
                     clientListItems.appendChild(li);
                 });
             }
-            clientList.classList.remove('hidden');
         }
 
         // Показать клиентский интерфейс
@@ -442,10 +476,8 @@
             document.getElementById('adminScanner').classList.add('hidden');
             document.getElementById('scanResult').textContent = '';
             stopScanner();
-            document.getElementById('clientList').classList.add('hidden'); // Скрыть список при выходе
-            document.getElementById('qrScanner').classList.add('hidden'); // Убедимся, что сканер скрыт
-            document.getElementById('salesForm').classList.add('hidden');
-            document.getElementById('shiftInfo').classList.add('hidden');
+            document.getElementById('clientList').classList.add('hidden');
+            document.getElementById('qrScanner').classList.add('hidden');
         }
 
         // Переключение сканера
@@ -453,12 +485,8 @@
             const scanner = document.getElementById('qrScanner');
             const isHidden = scanner.classList.contains('hidden');
             scanner.classList.toggle('hidden', !isHidden);
-            if (isHidden) {
-                startScanner();
-            } else {
-                stopScanner();
-                document.getElementById('scanResult').textContent = '';
-            }
+            if (isHidden) startScanner(); else stopScanner();
+            document.getElementById('scanResult').textContent = '';
         }
 
         // Инициализация сканера
@@ -466,30 +494,46 @@
         function startScanner() {
             const scanResult = document.getElementById('scanResult');
             const scanAction = document.getElementById('scanAction').value;
-            const adminPhone = document.getElementById('adminPhone').textContent;
+            const adminPhone = document.getElementById('adminPhone')?.textContent;
+            if (!adminPhone) {
+                scanResult.textContent = 'Ошибка: администратор не определён.';
+                return;
+            }
             scanResult.textContent = 'Наведите камеру на QR-код...';
-            html5QrcodeScanner = new Html5Qrcode('qrScanner');
-            html5QrcodeScanner.start(
-                { facingMode: 'environment' },
-                { fps: 10, qrbox: { width: 250, height: 250 } },
-                (decodedText) => {
-                    const isAdd = scanAction === 'add';
-                    const user = updateUserPoints(decodedText, 10, isAdd);
-                    if (user) {
-                        updateAdminStats(adminPhone, isAdd ? 10 : 0, isAdd ? 0 : 10);
-                        document.getElementById('adminPointsAdded').textContent = (parseInt(document.getElementById('adminPointsAdded').textContent) || 0) + (isAdd ? 10 : 0);
-                        document.getElementById('adminPointsDeducted').textContent = (parseInt(document.getElementById('adminPointsDeducted').textContent) || 0) + (isAdd ? 0 : 10);
-                        scanResult.textContent = `Сканування завершено. ${isAdd ? 'Начислено' : 'Списано'} 10 бонусів.`;
-                    } else {
-                        scanResult.textContent = 'Ошибка: недостаточно бонусов для списания.';
-                    }
-                    stopScanner();
-                },
-                (error) => {
-                    scanResult.textContent = 'Ошибка сканирования: ' + error;
+            Html5Qrcode.getCameras().then(devices => {
+                if (devices && devices.length) {
+                    var cameraId = devices[0].id;
+                    html5QrcodeScanner = new Html5Qrcode("qrScanner");
+                    html5QrcodeScanner.start(
+                        cameraId,
+                        { 
+                            fps: 10, 
+                            qrbox: { width: 250, height: 250 } 
+                        },
+                        (decodedText) => {
+                            const isAdd = scanAction === 'add';
+                            const user = updateUserPoints(decodedText, 10, isAdd);
+                            if (user) {
+                                updateAdminStats(adminPhone, isAdd ? 10 : 0, isAdd ? 0 : 10);
+                                document.getElementById('adminPointsAdded').textContent = (parseInt(document.getElementById('adminPointsAdded').textContent) || 0) + (isAdd ? 10 : 0);
+                                document.getElementById('adminPointsDeducted').textContent = (parseInt(document.getElementById('adminPointsDeducted').textContent) || 0) + (isAdd ? 0 : 10);
+                                scanResult.textContent = `Сканирование завершено. ${isAdd ? 'Начислено' : 'Списано'} 10 бонусов.`;
+                            } else {
+                                scanResult.textContent = 'Ошибка: недостаточно бонусов для списания.';
+                            }
+                            stopScanner();
+                        },
+                        (error) => {
+                            scanResult.textContent = 'Ошибка сканирования: ' + error;
+                        }
+                    ).catch(err => {
+                        scanResult.textContent = 'Ошибка инициализации сканера: ' + err;
+                    });
+                } else {
+                    scanResult.textContent = 'Ошибка: Камера не обнаружена. Убедитесь, что доступ к камере разрешён.';
                 }
-            ).catch((err) => {
-                scanResult.textContent = 'Ошибка инициализации сканера: ' + err;
+            }).catch(err => {
+                scanResult.textContent = 'Ошибка: Не удалось получить список камер. Проверьте разрешения.';
             });
         }
 
@@ -499,119 +543,10 @@
                 html5QrcodeScanner.stop().then(() => {
                     html5QrcodeScanner.clear();
                     html5QrcodeScanner = null;
-                }).catch((err) => {
-                    console.error('Ошибка остановки сканера:', err);
-                });
+                }).catch(err => console.error('Ошибка остановки сканера:', err));
             }
         }
 
-        // Обнуление продаж в воскресенье в 00:00 (по ORE)
-        function checkResetSales() {
-            const now = new Date();
-            const offset = 5; // UTC+5 для Оренбурга
-            const localTime = new Date(now.getTime() + (offset * 60 * 60 * 1000));
-            const day = localTime.getUTCDay();
-            const hour = localTime.getUTCHours();
-            if (day === 0 && hour === 0) { // Воскресенье, 00:00
-                localStorage.removeItem('salesData');
-                localStorage.removeItem('shiftData');
-            }
-        }
-
-        // Показать форму продаж
-        function showSales(type) {
-            const salesForm = document.getElementById('salesForm');
-            const salesTitle = document.getElementById('salesTitle');
-            const salesInputs = document.getElementById('salesInputs');
-            const salesSummary = document.getElementById('salesSummary');
-            salesInputs.innerHTML = '';
-            let items = [];
-
-            if (type === 'tir') {
-                salesTitle.textContent = 'Статистика Тира';
-                items = [
-                    { name: 'Акция дуэль', key: 'tir_duel' },
-                    { name: 'Акция 1200', key: 'tir_1200' },
-                    { name: 'Акция 3000', key: 'tir_3000' },
-                    { name: 'Сертификат 999+1', key: 'tir_cert' }
-                ];
-            } else if (type === 'arcade') {
-                salesTitle.textContent = 'Статистика Аркады';
-                items = [
-                    { name: 'Акция 2000', key: 'arcade_2000' },
-                    { name: 'Акция 1200', key: 'arcade_1200' },
-                    { name: 'Сертификат 999+1', key: 'arcade_cert' }
-                ];
-            } else if (type === 'viar') {
-                salesTitle.textContent = 'Статистика ВИАР';
-                items = [
-                    { name: 'Акция 1800', key: 'viar_1800' },
-                    { name: 'Сертификат 999+1', key: 'viar_cert' }
-                ];
-            }
-
-            const salesData = JSON.parse(localStorage.getItem('salesData')) || {};
-            items.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'mb-2';
-                const value = salesData[item.key] || { today: 0, week: 0 };
-                div.innerHTML = `
-                    <label class="block">${item.name}</label>
-                    <input type="number" id="${item.key}_today" value="${value.today}" class="w-full p-2 border rounded-lg mb-1" placeholder="Сегодня">
-                    <input type="number" id="${item.key}_week" value="${value.week}" class="w-full p-2 border rounded-lg mb-1" placeholder="Неделя">
-                `;
-                salesInputs.appendChild(div);
-            });
-
-            salesSummary.textContent = '';
-            salesForm.classList.remove('hidden');
-        }
-
-        // Сохранение продаж
-        function saveSales() {
-            const salesData = JSON.parse(localStorage.getItem('salesData')) || {};
-            const inputs = document.getElementById('salesInputs').getElementsByTagName('input');
-            for (let input of inputs) {
-                const [key, period] = input.id.split('_');
-                if (!salesData[key]) salesData[key] = { today: 0, week: 0 };
-                salesData[key][period] = parseInt(input.value) || 0;
-            }
-            localStorage.setItem('salesData', JSON.stringify(salesData));
-            const salesSummary = document.getElementById('salesSummary');
-            salesSummary.textContent = 'Данные сохранены!';
-            setTimeout(() => {
-                salesSummary.textContent = '';
-                document.getElementById('salesForm').classList.add('hidden');
-            }, 2000);
-        }
-
-        // Показать информацию о смене
-        function showShiftInfo() {
-            const shiftInfo = document.getElementById('shiftInfo');
-            const shiftEmployees = document.getElementById('shiftEmployees');
-            shiftEmployees.innerHTML = '';
-            const shiftData = JSON.parse(localStorage.getItem('shiftData')) || [];
-            if (shiftData.length === 0) {
-                shiftEmployees.innerHTML = '<p class="text-center">Нет данных о сотрудниках.</p>';
-            } else {
-                shiftData.forEach(emp => {
-                    const div = document.createElement('div');
-                    div.className = 'mb-2';
-                    div.innerHTML = `<p><strong>${emp.name}</strong> - Продано сертификатов: ${emp.certificates}</p>`;
-                    shiftEmployees.appendChild(div);
-                });
-            }
-            shiftInfo.classList.remove('hidden');
-        }
-
-        // Добавить сотрудника
-        function addEmployee() {
-            const name = prompt('Введите имя сотрудника:');
-            if (name) {
-                const certificates = parseInt(prompt('Введите количество проданных сертификатов:') || 0);
-                const shiftData = JSON.parse(localStorage.getItem('shiftData')) || [];
-                shiftData.push({ name, certificates });
-                localStorage.setItem('shiftData', JSON.stringify(shiftData));
-                showShiftInfo();
-            }
-        }
+        // Инициализация при загрузке
+        window.onload = initializeAdmins;
+    </script>
