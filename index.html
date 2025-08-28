@@ -110,6 +110,12 @@
                 <button onclick="toggleClientList()" class="bg-yellow-500 text-white p-2 rounded-lg hover:bg-yellow-600 w-full mx-1 mb-2">Показать/скрыть базу клиентов</button>
                 <a href="https://wa.me/1234567890" target="_blank" class="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 text-center w-full mx-1 mb-2">WhatsApp</a>
             </div>
+            <div class="mb-2">
+                <select id="cameraSelect" class="w-full p-2 border rounded-lg focus:outline-none">
+                    <option value="environment">Задняя камера</option>
+                    <option value="user">Фронтальная камера</option>
+                </select>
+            </div>
             <button onclick="toggleScanner()" class="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 w-full mx-1 mb-2">Начать сканирование</button>
             <div id="qrScanner" class="w-full h-64 bg-gray-200 rounded-lg hidden"></div>
             <p id="scanResult" class="text-center mt-4"></p>
@@ -459,7 +465,7 @@
                     if (isBirthday) {
                         const encodedText = encodeURIComponent('Здравствуйте! Поздравляем вас с днём рождения! Желаем всего самого что бы вы сами себе пожелали умноженное на миллион, начислим вам 500 бонусов при посещении нашего парка ;) Отличного дня!');
                         const whatsappLink = `https://wa.me/${normalizedPhone.replace('+', '')}?text=${encodedText}`;
-                        const telegramLink = `tg://msg_url?url=${encodedText}`;
+                        const telegramLink = `https://api.whatsapp.com/send?phone=${normalizedPhone}&text=${encodedText}`;
                         li.innerHTML += ` <a href="${whatsappLink}" target="_blank" class="text-green-500 ml-2">WhatsApp</a>`;
                         li.innerHTML += ` <a href="${telegramLink}" target="_blank" class="text-blue-500 ml-2">Telegram</a>`;
                     }
@@ -507,6 +513,7 @@
             const scanResult = document.getElementById('scanResult');
             const scanAction = document.getElementById('scanAction').value;
             const adminPhone = document.getElementById('adminPhone')?.textContent;
+            const cameraSelect = document.getElementById('cameraSelect').value;
             if (!adminPhone) {
                 scanResult.textContent = 'Ошибка: администратор не определён.';
                 return;
@@ -514,13 +521,18 @@
             scanResult.textContent = 'Наведите камеру на QR-код...';
             Html5Qrcode.getCameras().then(devices => {
                 if (devices && devices.length) {
-                    var cameraId = devices[0].id;
+                    let selectedCamera = devices.find(device => device.facingMode === cameraSelect) || devices[0];
+                    if (!selectedCamera) {
+                        selectedCamera = devices[0]; // Фallback на первую камеру, если нужная не найдена
+                        console.warn('Выбранная камера не найдена, используется первая доступная:', selectedCamera);
+                    }
                     html5QrcodeScanner = new Html5Qrcode("qrScanner");
                     html5QrcodeScanner.start(
-                        cameraId,
+                        selectedCamera.id,
                         { 
                             fps: 10, 
-                            qrbox: { width: 250, height: 250 } 
+                            qrbox: { width: 250, height: 250 },
+                            facingMode: cameraSelect
                         },
                         (decodedText) => {
                             const isAdd = scanAction === 'add';
